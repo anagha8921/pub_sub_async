@@ -1,15 +1,21 @@
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
+#include <thread>
 #include "tutorial_interfaces/srv/shutdown.hpp"
 #include "tutorial_interfaces/msg/service.hpp"
 #include "std_msgs/msg/string.hpp"
 using std::placeholders::_1;
+void printThreadID() {
+    std::thread::id threadId = std::this_thread::get_id();
+    std::cout << "Thread ID: " << threadId << std::endl;
+}
 void response_received_callback(const rclcpp::Client<tutorial_interfaces::srv::Shutdown>::SharedFuture future)  // CHANGE
 {
    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Got the Brightness callback response!!!");
    auto result = future.get();
    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Result: %d", result->resp.resp);
+   printThreadID();
   
 }
 void response_received_callback_b(const rclcpp::Client<tutorial_interfaces::srv::Shutdown>::SharedFuture future)  // CHANGE
@@ -17,8 +23,10 @@ void response_received_callback_b(const rclcpp::Client<tutorial_interfaces::srv:
    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Got the Contrast callbackresponse!!!");
    auto result = future.get();
    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Result: %d", result->resp.resp);
+   printThreadID();
   
 }
+
 class MinimalSubscriber : public rclcpp::Node
 {
   public:
@@ -51,7 +59,7 @@ class MinimalSubscriber : public rclcpp::Node
       for (int i=0;i<3;i++){
         RCLCPP_INFO(this->get_logger(), "Inside Brightness Callback");
       }
-     
+      printThreadID();
     }
     void topic_callback_contrast(const std_msgs::msg::String::SharedPtr msg) const
     {
@@ -69,7 +77,7 @@ class MinimalSubscriber : public rclcpp::Node
       for (int i=0;i<3;i++){
         RCLCPP_INFO(this->get_logger(), "Inside Contrast Callback");
       }
-     
+      printThreadID();
     }
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_contrast;
